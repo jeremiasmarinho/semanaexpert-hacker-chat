@@ -3,6 +3,8 @@ import blessed from "blessed";
 export default class ComponentsBuilder {
   #screen;
   #layout;
+  #input;
+
   constructor() {}
 
   #baseComponet() {
@@ -20,11 +22,49 @@ export default class ComponentsBuilder {
     };
   }
   setScreen({ title }) {
-    this.screen = blessed.screen({
+    this.#screen = blessed.screen({
       smartCSR: true,
       title,
     });
+
+    this.#screen.key(["escape", "q", "C-c"], () => process.exit(0));
+
     return this;
   }
-  setLayoutComponent() {}
+  setLayoutComponent() {
+    this.#layout = blessed.layout({
+      parent: this.#screen,
+      width: "100%",
+      height: "100%",
+    });
+    return this;
+  }
+  setInputComponent() {
+    const input = blessed.textarea({
+      parent: this.#screen,
+      bottom: 0,
+      height: "10%",
+      inputOnFocus: true,
+      padding: {
+        top: 1,
+        left: 1,
+      },
+      style: {
+        fg: "#f6f6f6",
+        bg: "#353535",
+      },
+    });
+
+    input.key("enter", onEnterPressed);
+    this.#input = input;
+
+    return this;
+  }
+  build() {
+    const components = {
+      screen: this.#screen,
+      input: this.#input,
+    };
+    return components;
+  }
 }
