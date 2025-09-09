@@ -4,6 +4,7 @@ export default class ComponentsBuilder {
   #screen;
   #layout;
   #input;
+  #chat;
 
   constructor() {}
 
@@ -39,7 +40,7 @@ export default class ComponentsBuilder {
     });
     return this;
   }
-  setInputComponent() {
+  setInputComponent(onEnterPressed) {
     const input = blessed.textarea({
       parent: this.#screen,
       bottom: 0,
@@ -60,10 +61,23 @@ export default class ComponentsBuilder {
 
     return this;
   }
+
+  setChatComponent() {
+    this.#chat = blessed.list({
+      ...this.#baseComponet(),
+      parent: this.#layout,
+      align: "left",
+      width: "50%",
+      height: "90%",
+      items: ["{bold}Messager{/bold}"],
+    });
+    return this;
+  }
   build() {
     const components = {
       screen: this.#screen,
       input: this.#input,
+      chat: this.#chat,
     };
     return components;
   }
