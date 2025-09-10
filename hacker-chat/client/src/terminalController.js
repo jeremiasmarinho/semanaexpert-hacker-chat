@@ -1,4 +1,6 @@
 import ComponentsBuilder from "./components.js";
+import { constants } from "./constants.js";
+
 export default class TerminalController {
   #userCollors = new Map();
   constructor() {}
@@ -30,8 +32,40 @@ export default class TerminalController {
       screen.render();
     };
   }
+  #onLogChanged({ screen, activityLog }) {
+    return (msg) => {
+      const [userName] = msg.split(/\s/);
+      const collor = this.#getUserColor(userName);
+      activityLog.addItem(`{${collor}}{bold}${msg.toString()}{/bold}`);
+      screen.render();
+    };
+  }
+  #onStatusChanged({ screen, status }) {
+    return (users) => {
+      const { content } = status.items.shift();
+      status.clearItems();
+      status.addItem(content);
+
+      users.forEach((userName) => {
+        const collor = this.#getUserColor(userName);
+        status.addItem(`{${collor}}{bold}${userName}{/bold}`);
+      });
+      screen.render();
+    };
+  }
   #registerEvents(eventEmitter, components) {
-    eventEmitter.on("message:received", this.#onMessageReceived(components));
+    eventEmitter.on(
+      constants.events.app.MESSAGE_RECEIVED,
+      this.#onMessageReceived(components)
+    );
+    eventEmitter.on(
+      constants.events.app.ACTIVITYLOG_UPDATED,
+      this.#onLogChanged(components)
+    );
+    eventEmitter.on(
+      constants.events.app.STATUS_UPDATED,
+      this.#onStatusChanged(components)
+    );
   }
 
   initializeTable(eventEmitter) {
@@ -40,6 +74,8 @@ export default class TerminalController {
       .setLayoutComponent()
       .setInputComponent(this.#onInputReceived(eventEmitter))
       .setChatComponent()
+      .setStatusComponent()
+      .setActivityLogComponent()
       .build();
 
     this.#registerEvents(eventEmitter, components);
@@ -47,14 +83,12 @@ export default class TerminalController {
     components.screen.render();
 
     setInterval(() => {
-      eventEmitter.emit("message:received", {
-        userName: "Samuel",
-        message: "Hello World",
-      });
-      eventEmitter.emit("message:received", {
-        userName: "Maria",
-        message: "Hello World",
-      });
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Samuel join");
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Maria join");
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "João join");
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Samuel left");
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Maria left");
+      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "João left");
     }, 1000);
   }
 }
