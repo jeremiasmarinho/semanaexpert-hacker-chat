@@ -1,6 +1,18 @@
 import ComponentsBuilder from "./components.js";
 export default class TerminalController {
+  #userCollors = new Map();
   constructor() {}
+
+  #pickCollor() {
+    return `#${(((1 << 24) * Math.random()) | 0).toString(16)}-fg`;
+  }
+
+  #getUserColor(userName) {
+    if (this.#userCollors.has(userName)) return this.#userCollors.get(userName);
+    const collor = this.#pickCollor();
+    this.#userCollors.set(userName, collor);
+    return collor;
+  }
 
   #onInputReceived(eventEmitter) {
     return function () {
@@ -13,7 +25,8 @@ export default class TerminalController {
   #onMessageReceived({ screen, chat }) {
     return (msg) => {
       const { userName, message } = msg;
-      chat.addItem(`{bold}${userName}{/bold} ${message}`);
+      const collor = this.#getUserColor(userName);
+      chat.addItem(`{${collor}}{bold}${userName}{/bold} ${message}`);
       screen.render();
     };
   }
@@ -35,13 +48,13 @@ export default class TerminalController {
 
     setInterval(() => {
       eventEmitter.emit("message:received", {
-        message: "ola",
-        userName: "Jeremias",
+        userName: "Samuel",
+        message: "Hello World",
       });
       eventEmitter.emit("message:received", {
-        message: "oi",
-        userName: "Samuel",
+        userName: "Maria",
+        message: "Hello World",
       });
-    }, 2000);
+    }, 1000);
   }
 }
