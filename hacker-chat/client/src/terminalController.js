@@ -74,21 +74,13 @@ export default class TerminalController {
       .setLayoutComponent()
       .setInputComponent(this.#onInputReceived(eventEmitter))
       .setChatComponent()
-      .setStatusComponent()
       .setActivityLogComponent()
+      .setStatusComponent()
+
       .build();
 
     this.#registerEvents(eventEmitter, components);
     components.input.focus();
     components.screen.render();
-
-    setInterval(() => {
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Samuel join");
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Maria join");
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "João join");
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Samuel left");
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "Maria left");
-      eventEmitter.emit(constants.events.app.STATUS_UPDATED, "João left");
-    }, 1000);
   }
 }

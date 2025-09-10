@@ -103,8 +103,8 @@ export default class ComponentsBuilder {
       screen: this.#screen,
       input: this.#input,
       chat: this.#chat,
-      status: this.#status,
       activityLog: this.#activityLog,
+      status: this.#status,
     };
     return components;
   }
